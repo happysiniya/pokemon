@@ -152,7 +152,6 @@
     <div class="types" id="dtypes"></div>
     <div class="actions">
       <button class="bigbtn" id="cry">🔊 울음소리</button>
-      <button class="bigbtn" id="say">🗣️ 이름 듣기</button>
       <button class="bigbtn" id="shiny">✨ 색이 다른</button>
       <button class="bigbtn" id="favbtn">🤍 좋아요</button>
     </div>
@@ -248,12 +247,6 @@ function playCry(id) {
   audio.play().catch(() => {});
   const img = $('dimg'); img.classList.remove('shake'); void img.offsetWidth; img.classList.add('shake');
 }
-function say(text) {
-  if (!('speechSynthesis' in window)) return;
-  speechSynthesis.cancel();
-  const u = new SpeechSynthesisUtterance(text); u.lang = 'ko-KR'; u.rate = 0.9;
-  speechSynthesis.speak(u);
-}
 
 // ---------- 상세 화면 ----------
 let cur = null, shiny = false;
@@ -315,7 +308,6 @@ $('prev').onclick = () => step(-1);
 $('next').onclick = () => step(1);
 $('cry').onclick = () => playCry(cur.id);
 $('dimg').onclick = () => playCry(cur.id);
-$('say').onclick = () => say(cur.n);
 // 색이 다른 모습 그림이 없는 포켓몬(일부 메가진화)은 원래 그림으로 돌아가요
 $('dimg').onerror = () => {
   if (!shiny) return;
