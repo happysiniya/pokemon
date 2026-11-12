@@ -284,9 +284,12 @@ function closeDetail() {
 }
 window.addEventListener('popstate', () => { if ($('detail').classList.contains('open')) hideDetail(); });
 function step(d) {
-  const ids = list.length ? list.map(p => p.id) : POKEMON.map(p => p.id);
-  let i = ids.indexOf(cur.id);
-  if (i < 0) { open(Math.min(1025, Math.max(1, cur.id + d))); return; }
+  // '좋아요' 탭에서는 좋아요 누른 포켓몬끼리만 넘기고,
+  // 그 밖(세대 탭, 검색, 주사위)에서는 도감 번호 순서로 넘겨요 (진화 전/후가 바로 이어져요)
+  const favMode = gen === 0 && !$('q').value.trim();
+  let ids = favMode ? list.map(p => p.id) : [];
+  if (!ids.includes(cur.id)) ids = POKEMON.map(p => p.id);
+  const i = ids.indexOf(cur.id);
   open(ids[(i + d + ids.length) % ids.length]);
 }
 $('close').onclick = closeDetail;
