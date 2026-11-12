@@ -1,0 +1,322 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>우리 아이 포켓몬 도감</title>
+<link rel="preconnect" href="https://raw.githubusercontent.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Jua&display=swap">
+<style>
+  :root {
+    --bg: #fff8e7; --card: #ffffff; --ink: #2b2b2b; --muted: #777;
+    --red: #e3350d; --yellow: #ffcb05; --blue: #3b6fd8; --shadow: 0 4px 0 rgba(0,0,0,.12);
+  }
+  * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+  body { margin: 0; background: var(--bg); color: var(--ink);
+    font-family: "Jua", "Malgun Gothic", "Apple SD Gothic Neo", sans-serif; }
+  button { font-family: inherit; cursor: pointer; }
+
+  header { position: sticky; top: 0; z-index: 5; background: var(--red); padding: 12px 16px 10px;
+    box-shadow: 0 3px 0 #b02a0a; }
+  .top { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
+  h1 { margin: 0; color: #fff; font-size: 28px; text-shadow: 2px 2px 0 #9c2408; white-space: nowrap; }
+  h1 .ball { display: inline-block; width: 26px; height: 26px; border-radius: 50%; vertical-align: -4px;
+    background: linear-gradient(#e3350d 0 45%, #222 45% 55%, #fff 55%); border: 3px solid #222; margin-right: 6px; }
+  .search { flex: 1; min-width: 200px; display: flex; gap: 8px; }
+  .search input { flex: 1; min-width: 0; font-size: 22px; padding: 10px 14px; border-radius: 999px;
+    border: 3px solid #222; font-family: inherit; outline: none; }
+  .bigbtn { font-size: 22px; border: 3px solid #222; border-radius: 999px; background: var(--yellow);
+    padding: 8px 14px; box-shadow: var(--shadow); white-space: nowrap; }
+  .bigbtn:active { transform: translateY(3px); box-shadow: none; }
+  .bigbtn.listening { background: #7ee07e; animation: pulse 1s infinite; }
+  @keyframes pulse { 50% { transform: scale(1.08); } }
+
+  nav { display: flex; gap: 8px; overflow-x: auto; padding: 10px 0 2px; scrollbar-width: none; }
+  nav button { flex: none; font-size: 18px; border: 3px solid #222; border-radius: 14px; background: #fff;
+    padding: 6px 12px; line-height: 1.1; }
+  nav button small { display: block; font-size: 13px; color: var(--muted); }
+  nav button.on { background: var(--yellow); transform: scale(1.05); }
+
+  #status { text-align: center; font-size: 20px; color: var(--muted); margin: 14px 16px 0; min-height: 24px; }
+  #grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 14px; padding: 14px 16px 40px; }
+  .card { background: var(--card); border: 3px solid #222; border-radius: 20px; padding: 8px 6px 10px;
+    text-align: center; box-shadow: var(--shadow); position: relative; }
+  .card:active { transform: translateY(3px); box-shadow: none; }
+  .card img { width: 100%; aspect-ratio: 1; object-fit: contain; }
+  .card .num { position: absolute; top: 6px; left: 10px; font-size: 14px; color: var(--muted); }
+  .card .fav { position: absolute; top: 4px; right: 8px; font-size: 18px; }
+  .card .name { font-size: 22px; margin-top: 2px; }
+
+  /* 상세 화면 */
+  #detail { position: fixed; inset: 0; z-index: 10; background: rgba(0,0,0,.55); display: none;
+    align-items: center; justify-content: center; padding: 12px; }
+  #detail.open { display: flex; }
+  .sheet { background: #fff; border: 4px solid #222; border-radius: 28px; width: min(720px, 100%);
+    max-height: 100%; overflow-y: auto; padding: 16px 18px 20px; position: relative; text-align: center; }
+  .sheet .close { position: absolute; top: 10px; right: 12px; font-size: 26px; width: 52px; height: 52px;
+    border-radius: 50%; border: 3px solid #222; background: #fff; }
+  .hero { display: flex; align-items: center; gap: 6px; }
+  .arrow { font-size: 34px; width: 60px; height: 60px; border-radius: 50%; border: 3px solid #222;
+    background: var(--yellow); flex: none; box-shadow: var(--shadow); }
+  .arrow:active { transform: translateY(3px); box-shadow: none; }
+  .hero img { flex: 1; min-width: 0; width: 100%; max-height: 46vh; aspect-ratio: 1; object-fit: contain; cursor: pointer;
+    filter: drop-shadow(0 6px 0 rgba(0,0,0,.12)); }
+  .hero img.shake { animation: shake .5s; }
+  @keyframes shake { 20% { transform: rotate(-6deg) scale(1.05);} 40% { transform: rotate(6deg) scale(1.08);}
+    60% { transform: rotate(-4deg) scale(1.05);} 80% { transform: rotate(3deg);} }
+  .dnum { color: var(--muted); font-size: 20px; }
+  .dname { font-size: 46px; margin: 0; line-height: 1.1; }
+  .dgenus { font-size: 20px; color: var(--muted); margin-top: 4px; }
+  .badge { display: inline-block; font-size: 15px; padding: 2px 10px; border-radius: 999px; margin-left: 4px;
+    background: #ffe27a; border: 2px solid #222; vertical-align: 6px; }
+  .types { margin: 10px 0; }
+  .type { display: inline-block; color: #fff; font-size: 20px; padding: 4px 16px; border-radius: 999px;
+    margin: 0 4px; border: 2px solid rgba(0,0,0,.25); text-shadow: 1px 1px 0 rgba(0,0,0,.3); cursor: pointer; }
+  .desc { font-size: 20px; line-height: 1.6; background: #f4f4f4; border-radius: 16px; padding: 10px 14px; margin: 10px 0; }
+  .actions { display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; margin: 12px 0 4px; }
+  .actions .bigbtn { font-size: 20px; }
+  .actions .bigbtn.on { background: #ffd6f0; }
+  .evo h3 { font-size: 20px; margin: 16px 0 6px; color: var(--muted); font-weight: normal; }
+  .evo .row { display: flex; flex-wrap: wrap; justify-content: center; align-items: center; gap: 4px; }
+  .evo .row button { background: none; border: 3px solid transparent; border-radius: 16px; padding: 4px; font-size: 16px; }
+  .evo .row button.me { border-color: var(--yellow); background: #fff7cc; }
+  .evo .row img { width: 84px; height: 84px; object-fit: contain; display: block; margin: 0 auto; }
+  .evo .to { font-size: 24px; color: var(--muted); }
+  .namu { display: inline-block; margin-top: 14px; font-size: 16px; color: var(--blue); }
+
+  @media (max-width: 520px) {
+    h1 { font-size: 22px; }
+    #grid { grid-template-columns: repeat(2, 1fr); gap: 10px; padding: 12px; }
+    .dname { font-size: 36px; }
+    .arrow { width: 48px; height: 48px; font-size: 26px; }
+  }
+</style>
+</head>
+<body>
+<header>
+  <div class="top">
+    <h1><span class="ball"></span>포켓몬 도감</h1>
+    <div class="search">
+      <input id="q" type="search" placeholder="이름 찾기 (예: 피카츄, ㅍㅋㅊ)" autocomplete="off">
+      <button class="bigbtn" id="mic" title="말로 찾기">🎤</button>
+      <button class="bigbtn" id="rand" title="아무 포켓몬이나!">🎲</button>
+    </div>
+  </div>
+  <nav id="tabs"></nav>
+</header>
+<div id="status"></div>
+<main id="grid"></main>
+
+<div id="detail">
+  <div class="sheet" id="sheet">
+    <button class="close" id="close" aria-label="닫기">✕</button>
+    <div class="dnum" id="dnum"></div>
+    <h2 class="dname" id="dname"></h2>
+    <div class="dgenus" id="dgenus"></div>
+    <div class="hero">
+      <button class="arrow" id="prev" aria-label="이전">◀</button>
+      <img id="dimg" alt="" title="눌러보세요!">
+      <button class="arrow" id="next" aria-label="다음">▶</button>
+    </div>
+    <div class="types" id="dtypes"></div>
+    <div class="actions">
+      <button class="bigbtn" id="cry">🔊 울음소리</button>
+      <button class="bigbtn" id="say">🗣️ 이름 듣기</button>
+      <button class="bigbtn" id="shiny">✨ 색이 다른</button>
+      <button class="bigbtn" id="favbtn">🤍 좋아요</button>
+    </div>
+    <div class="desc" id="ddesc"></div>
+    <div class="evo" id="devo"></div>
+    <a class="namu" id="namu" target="_blank" rel="noopener">나무위키에서 더 보기 ↗</a>
+  </div>
+</div>
+
+<script src="pokemon-data.js"></script>
+<script>
+const ART = 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/';
+const CRY = 'https://raw.githubusercontent.com/PokeAPI/cries/main/cries/pokemon/';
+const GENS = [
+  [0, '⭐ 좋아요', ''], [1, '1세대', '관동'], [2, '2세대', '성도'], [3, '3세대', '호연'], [4, '4세대', '신오'],
+  [5, '5세대', '하나'], [6, '6세대', '칼로스'], [7, '7세대', '알로라'], [8, '8세대', '가라르'], [9, '9세대', '팔데아'],
+];
+const TYPE_COLOR = {
+  '노말': '#9fa19f', '불꽃': '#e62829', '물': '#2980ef', '풀': '#3fa129', '전기': '#e8b600', '얼음': '#3dcef3',
+  '격투': '#ff8000', '독': '#9141cb', '땅': '#915121', '비행': '#81b9ef', '에스퍼': '#ef4179', '벌레': '#91a119',
+  '바위': '#afa981', '고스트': '#704170', '드래곤': '#5060e1', '악': '#624d4e', '강철': '#60a1b8', '페어리': '#ef70ef',
+};
+const byId = new Map(POKEMON.map(p => [p.id, p]));
+const $ = id => document.getElementById(id);
+const pad = n => String(n).padStart(4, '0');
+
+// ---------- 좋아요 (이 기기에만 저장) ----------
+let favs = new Set();
+try { favs = new Set(JSON.parse(localStorage.getItem('pk-favs') || '[]')); } catch (e) {}
+function saveFavs() { try { localStorage.setItem('pk-favs', JSON.stringify([...favs])); } catch (e) {} }
+
+// ---------- 초성 검색 ----------
+const CHO = 'ㄱㄲㄴㄷㄸㄹㅁㅂㅃㅅㅆㅇㅈㅉㅊㅋㅌㅍㅎ';
+function chosung(s) {
+  return [...s].map(c => {
+    const k = c.charCodeAt(0) - 0xac00;
+    return k >= 0 && k < 11172 ? CHO[Math.floor(k / 588)] : c;
+  }).join('');
+}
+POKEMON.forEach(p => { p.cho = chosung(p.n); });
+
+// ---------- 목록 ----------
+let gen = 1, list = [];
+function render() {
+  const q = $('q').value.replace(/\s/g, '');
+  if (q) {
+    const isCho = /^[ㄱ-ㅎ]+$/.test(q);
+    list = POKEMON.filter(p =>
+      String(p.id) === q || p.n.replace(/\s/g, '').includes(q) || (isCho && p.cho.includes(q)) || p.t.includes(q));
+    $('status').textContent = list.length ? `"${q}" 찾았어요! ${list.length}마리` : `"${q}" 포켓몬이 없어요 😢`;
+  } else if (gen === 0) {
+    list = POKEMON.filter(p => favs.has(p.id));
+    $('status').textContent = list.length ? `좋아하는 포켓몬 ${list.length}마리` : '마음에 드는 포켓몬에 🤍를 눌러 보세요!';
+  } else {
+    list = POKEMON.filter(p => p.gen === gen);
+    const g = GENS[gen];
+    $('status').textContent = `${g[1]} · ${g[2]} 지방 포켓몬 ${list.length}마리`;
+  }
+  document.querySelectorAll('#tabs button').forEach(b => b.classList.toggle('on', !q && +b.dataset.gen === gen));
+  $('grid').innerHTML = list.map(p => `
+    <button class="card" data-id="${p.id}">
+      <span class="num">No.${pad(p.id)}</span>${favs.has(p.id) ? '<span class="fav">❤️</span>' : ''}
+      <img loading="lazy" src="${ART}${p.id}.png" alt="${p.n}">
+      <div class="name">${p.n}</div>
+    </button>`).join('');
+}
+$('tabs').innerHTML = GENS.map(([g, a, b]) => `<button data-gen="${g}">${a}${b ? `<small>${b}</small>` : ''}</button>`).join('');
+$('tabs').onclick = e => {
+  const b = e.target.closest('button'); if (!b) return;
+  gen = +b.dataset.gen; $('q').value = ''; render(); window.scrollTo(0, 0);
+};
+$('grid').onclick = e => { const c = e.target.closest('.card'); if (c) open(+c.dataset.id); };
+$('q').oninput = render;
+
+// ---------- 소리 ----------
+const audio = new Audio();
+function playCry(id) {
+  audio.src = `${CRY}latest/${id}.ogg`;
+  audio.onerror = () => { if (!audio.src.includes('legacy')) { audio.src = `${CRY}legacy/${id}.ogg`; audio.play().catch(() => {}); } };
+  audio.currentTime = 0;
+  audio.play().catch(() => {});
+  const img = $('dimg'); img.classList.remove('shake'); void img.offsetWidth; img.classList.add('shake');
+}
+function say(text) {
+  if (!('speechSynthesis' in window)) return;
+  speechSynthesis.cancel();
+  const u = new SpeechSynthesisUtterance(text); u.lang = 'ko-KR'; u.rate = 0.9;
+  speechSynthesis.speak(u);
+}
+
+// ---------- 상세 화면 ----------
+let cur = null, shiny = false;
+function open(id) {
+  const p = byId.get(id); if (!p) return;
+  cur = p; shiny = false;
+  $('dnum').textContent = 'No.' + pad(p.id);
+  $('dname').innerHTML = p.n + (p.leg === 1 ? '<span class="badge">전설</span>' : p.leg === 2 ? '<span class="badge">환상</span>' : '');
+  $('dgenus').textContent = p.g;
+  $('dimg').src = ART + p.id + '.png'; $('dimg').alt = p.n;
+  $('dtypes').innerHTML = p.t.map(t => `<span class="type" style="background:${TYPE_COLOR[t] || '#999'}" data-t="${t}">${t}</span>`).join('');
+  $('ddesc').textContent = p.d || `${p.g}이에요.`;
+  $('ddesc').style.display = p.g || p.d ? '' : 'none';
+  $('shiny').classList.remove('on');
+  updFav();
+  $('namu').href = 'https://namu.wiki/w/' + encodeURIComponent(p.n);
+  // 진화 (같은 진화 계열, 진화 단계 순서대로)
+  const fam = POKEMON.filter(x => x.ch === p.ch);
+  const stage = x => { let s = 0, y = x; while (y.from && byId.get(y.from)) { s++; y = byId.get(y.from); } return s; };
+  const stages = [];
+  fam.forEach(x => (stages[stage(x)] ||= []).push(x));
+  $('devo').innerHTML = fam.length > 1 ? '<h3>진화</h3><div class="row">' + stages.map(st => st.map(x =>
+    `<button class="${x.id === p.id ? 'me' : ''}" data-id="${x.id}"><img loading="lazy" src="${ART}${x.id}.png" alt="">${x.n}</button>`
+  ).join('')).join('<span class="to">▶</span>') + '</div>' : '';
+  $('detail').classList.add('open');
+  $('sheet').scrollTop = 0;
+  playCry(p.id);
+}
+function updFav() {
+  const on = favs.has(cur.id);
+  $('favbtn').textContent = on ? '❤️ 좋아요!' : '🤍 좋아요';
+  $('favbtn').classList.toggle('on', on);
+}
+function closeDetail() { $('detail').classList.remove('open'); audio.pause(); render(); }
+function step(d) {
+  const ids = list.length ? list.map(p => p.id) : POKEMON.map(p => p.id);
+  let i = ids.indexOf(cur.id);
+  if (i < 0) { open(Math.min(1025, Math.max(1, cur.id + d))); return; }
+  open(ids[(i + d + ids.length) % ids.length]);
+}
+$('close').onclick = closeDetail;
+$('detail').onclick = e => { if (e.target.id === 'detail') closeDetail(); };
+$('prev').onclick = () => step(-1);
+$('next').onclick = () => step(1);
+$('cry').onclick = () => playCry(cur.id);
+$('dimg').onclick = () => playCry(cur.id);
+$('say').onclick = () => say(cur.n);
+$('shiny').onclick = () => {
+  shiny = !shiny;
+  $('dimg').src = ART + (shiny ? 'shiny/' : '') + cur.id + '.png';
+  $('shiny').classList.toggle('on', shiny);
+};
+$('favbtn').onclick = () => { favs.has(cur.id) ? favs.delete(cur.id) : favs.add(cur.id); saveFavs(); updFav(); };
+$('devo').onclick = e => { const b = e.target.closest('button'); if (b) open(+b.dataset.id); };
+$('dtypes').onclick = e => {
+  const t = e.target.dataset.t; if (!t) return;
+  $('q').value = t; closeDetail(); window.scrollTo(0, 0);
+};
+document.addEventListener('keydown', e => {
+  if (!$('detail').classList.contains('open')) return;
+  if (e.key === 'ArrowLeft') step(-1);
+  else if (e.key === 'ArrowRight') step(1);
+  else if (e.key === 'Escape') closeDetail();
+  else if (e.key === ' ') { e.preventDefault(); playCry(cur.id); }
+});
+// 태블릿에서 옆으로 밀면 다음/이전
+let sx = null;
+$('sheet').addEventListener('touchstart', e => { sx = e.touches[0].clientX; }, { passive: true });
+$('sheet').addEventListener('touchend', e => {
+  if (sx === null) return;
+  const dx = e.changedTouches[0].clientX - sx; sx = null;
+  if (Math.abs(dx) > 70) step(dx < 0 ? 1 : -1);
+});
+
+// ---------- 랜덤 ----------
+$('rand').onclick = () => {
+  const pool = list.length ? list : POKEMON;
+  open(pool[Math.floor(Math.random() * pool.length)].id);
+};
+
+// ---------- 말로 찾기 ----------
+const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+if (!SR) $('mic').style.display = 'none';
+$('mic').onclick = () => {
+  const r = new SR(); r.lang = 'ko-KR'; r.maxAlternatives = 5;
+  $('mic').classList.add('listening');
+  $('status').textContent = '듣고 있어요... 포켓몬 이름을 말해 보세요! 🎤';
+  r.onresult = e => {
+    const alts = [...e.results[0]].map(a => a.transcript.replace(/[\s.?!]/g, ''));
+    // 말한 것과 정확히 같은 이름이 있으면 바로 열기
+    const key = p => p.n.replace(/\s/g, '');
+    let hit = null;
+    for (const a of alts) { hit = POKEMON.find(p => key(p) === a); if (hit) break; }
+    if (!hit) { // "피카츄 보여줘" 처럼 말해도 가장 긴 이름을 찾아요
+      for (const a of alts) for (const p of POKEMON)
+        if (key(p).length >= 2 && a.includes(key(p)) && (!hit || key(p).length > key(hit).length)) hit = p;
+    }
+    if (hit) { $('q').value = hit.n; render(); open(hit.id); return; }
+    $('q').value = alts[0]; render();
+  };
+  r.onerror = () => { $('status').textContent = '잘 못 들었어요. 다시 눌러 주세요!'; };
+  r.onend = () => $('mic').classList.remove('listening');
+  r.start();
+};
+
+render();
+</script>
+</body>
+</html>
