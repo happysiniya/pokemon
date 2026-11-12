@@ -79,6 +79,8 @@
   .dgenus { font-size: 20px; color: var(--muted); margin-top: 4px; }
   .badge { display: inline-block; font-size: 15px; padding: 2px 10px; border-radius: 999px; margin-left: 4px;
     background: #ffe27a; border: 2px solid #222; vertical-align: 6px; }
+  .badge.mega { background: linear-gradient(90deg, #ff7ad9, #9b6bff, #4fc3ff); color: #fff;
+    text-shadow: 1px 1px 0 rgba(0,0,0,.3); }
   .types { margin: 10px 0; }
   .type { display: inline-block; color: #fff; font-size: 20px; padding: 4px 16px; border-radius: 999px;
     margin: 0 4px; border: 2px solid rgba(0,0,0,.25); text-shadow: 1px 1px 0 rgba(0,0,0,.3); cursor: pointer; }
@@ -90,6 +92,8 @@
   .evo .row { display: flex; flex-wrap: wrap; justify-content: center; align-items: center; gap: 4px; }
   .evo .row button { background: none; border: 3px solid transparent; border-radius: 16px; padding: 4px; font-size: 16px; }
   .evo .row button.me { border-color: var(--yellow); background: #fff7cc; }
+  .evo .row button.mega { background: linear-gradient(#f6ecff, #e8f6ff); border-radius: 16px; }
+  .evo .row button.mega.me { border-color: #9b6bff; }
   .evo .row img { width: 84px; height: 84px; object-fit: contain; display: block; margin: 0 auto; }
   .evo .to { font-size: 24px; color: var(--muted); }
   .namu { display: inline-block; margin-top: 14px; font-size: 16px; color: var(--blue); }
@@ -172,6 +176,16 @@ const TYPE_COLOR = {
   '바위': '#afa981', '고스트': '#704170', '드래곤': '#5060e1', '악': '#624d4e', '강철': '#60a1b8', '페어리': '#ef70ef',
 };
 const byId = new Map(POKEMON.map(p => [p.id, p]));
+// 메가진화: 원래 포켓몬 정보(분류, 진화 계열, 세대)를 이어받고 이름·타입·그림 번호만 달라요.
+// 진화 단계에서는 원래 포켓몬 다음 단계로 보여요 (from = 원래 포켓몬).
+const MEGAS = (typeof MEGA === 'undefined' ? [] : MEGA).map(m => {
+  const base = byId.get(m.b);
+  return { ...base, id: m.id, n: m.n, t: m.t, b: m.b, from: m.b, mega: true,
+    d: `${base.n}의 메가진화 모습이에요.` };
+});
+MEGAS.forEach(m => byId.set(m.id, m));
+const ALL = POKEMON.concat(MEGAS);   // 검색·좋아요·진화에 쓰는 전체 목록 (세대 탭·주사위는 POKEMON만)
+const dexNo = p => p.b || p.id;      // 화면에 보이는 도감 번호 (메가진화는 원래 포켓몬 번호)
 const $ = id => document.getElementById(id);
 const pad = n => String(n).padStart(4, '0');
 
@@ -188,7 +202,7 @@ function chosung(s) {
     return k >= 0 && k < 11172 ? CHO[Math.floor(k / 588)] : c;
   }).join('');
 }
-POKEMON.forEach(p => { p.cho = chosung(p.n); });
+ALL.forEach(p => { p.cho = chosung(p.n); });
 
 // ---------- 목록 ----------
 let gen = 1, list = [];
@@ -196,11 +210,11 @@ function render() {
   const q = $('q').value.replace(/\s/g, '');
   if (q) {
     const isCho = /^[ㄱ-ㅎ]+$/.test(q);
-    list = POKEMON.filter(p =>
+    list = ALL.filter(p =>
       String(p.id) === q || p.n.replace(/\s/g, '').includes(q) || (isCho && p.cho.includes(q)) || p.t.includes(q));
     $('status').textContent = list.length ? `"${q}" 찾았어요! ${list.length}마리` : `"${q}" 포켓몬이 없어요 😢`;
   } else if (gen === 0) {
-    list = POKEMON.filter(p => favs.has(p.id));
+    list = ALL.filter(p => favs.has(p.id)).sort((a, b) => dexNo(a) - dexNo(b) || a.id - b.id);
     $('status').textContent = list.length ? `좋아하는 포켓몬 ${list.length}마리` : '마음에 드는 포켓몬에 🤍를 눌러 보세요!';
   } else {
     list = POKEMON.filter(p => p.gen === gen);
@@ -210,7 +224,7 @@ function render() {
   document.querySelectorAll('#tabs button').forEach(b => b.classList.toggle('on', !q && +b.dataset.gen === gen));
   $('grid').innerHTML = list.map(p => `
     <button class="card" data-id="${p.id}">
-      <span class="num">No.${pad(p.id)}</span>${favs.has(p.id) ? '<span class="fav">❤️</span>' : ''}
+      <span class="num">No.${pad(dexNo(p))}</span>${favs.has(p.id) ? '<span class="fav">❤️</span>' : ''}
       <img loading="lazy" crossorigin="anonymous" src="${ART}${p.id}.png" alt="${p.n}">
       <div class="name">${p.n}</div>
     </button>`).join('');
@@ -246,8 +260,9 @@ let cur = null, shiny = false;
 function open(id) {
   const p = byId.get(id); if (!p) return;
   cur = p; shiny = false;
-  $('dnum').textContent = 'No.' + pad(p.id);
-  $('dname').innerHTML = p.n + (p.leg === 1 ? '<span class="badge">전설</span>' : p.leg === 2 ? '<span class="badge">환상</span>' : '');
+  $('dnum').textContent = 'No.' + pad(dexNo(p));
+  $('dname').innerHTML = p.n + (p.mega ? '<span class="badge mega">메가진화</span>' : '') +
+    (p.leg === 1 ? '<span class="badge">전설</span>' : p.leg === 2 ? '<span class="badge">환상</span>' : '');
   $('dgenus').textContent = p.g;
   $('dimg').src = ART + p.id + '.png'; $('dimg').alt = p.n;
   $('dtypes').innerHTML = p.t.map(t => `<span class="type" style="background:${TYPE_COLOR[t] || '#999'}" data-t="${t}">${t}</span>`).join('');
@@ -255,14 +270,14 @@ function open(id) {
   $('ddesc').style.display = p.g || p.d ? '' : 'none';
   $('shiny').classList.remove('on');
   updFav();
-  $('namu').href = 'https://namu.wiki/w/' + encodeURIComponent(p.n);
-  // 진화 (같은 진화 계열, 진화 단계 순서대로)
-  const fam = POKEMON.filter(x => x.ch === p.ch);
+  $('namu').href = 'https://namu.wiki/w/' + encodeURIComponent(byId.get(dexNo(p)).n);
+  // 진화 (같은 진화 계열, 진화 단계 순서대로. 메가진화는 원래 포켓몬 다음 단계)
+  const fam = ALL.filter(x => x.ch === p.ch);
   const stage = x => { let s = 0, y = x; while (y.from && byId.get(y.from)) { s++; y = byId.get(y.from); } return s; };
   const stages = [];
   fam.forEach(x => (stages[stage(x)] ||= []).push(x));
   $('devo').innerHTML = fam.length > 1 ? '<h3>진화</h3><div class="row">' + stages.map(st => st.map(x =>
-    `<button class="${x.id === p.id ? 'me' : ''}" data-id="${x.id}"><img loading="lazy" crossorigin="anonymous" src="${ART}${x.id}.png" alt="">${x.n}</button>`
+    `<button class="${x.id === p.id ? 'me' : ''}${x.mega ? ' mega' : ''}" data-id="${x.id}"><img loading="lazy" crossorigin="anonymous" src="${ART}${x.id}.png" alt="">${x.n}</button>`
   ).join('')).join('<span class="to">▶</span>') + '</div>' : '';
   if (!$('detail').classList.contains('open')) {
     // 태블릿 '뒤로' 버튼을 누르면 앱이 꺼지지 않고 상세 화면만 닫히게
@@ -288,8 +303,10 @@ function step(d) {
   // 그 밖(세대 탭, 검색, 주사위)에서는 도감 번호 순서로 넘겨요 (진화 전/후가 바로 이어져요)
   const favMode = gen === 0 && !$('q').value.trim();
   let ids = favMode ? list.map(p => p.id) : [];
-  if (!ids.includes(cur.id)) ids = POKEMON.map(p => p.id);
-  const i = ids.indexOf(cur.id);
+  if (ids.includes(cur.id)) { const i = ids.indexOf(cur.id); open(ids[(i + d + ids.length) % ids.length]); return; }
+  // 도감 번호 순서 (메가진화에서 넘기면 원래 포켓몬 번호 기준으로 앞뒤)
+  ids = POKEMON.map(p => p.id);
+  const i = ids.indexOf(dexNo(cur));
   open(ids[(i + d + ids.length) % ids.length]);
 }
 $('close').onclick = closeDetail;
@@ -299,6 +316,12 @@ $('next').onclick = () => step(1);
 $('cry').onclick = () => playCry(cur.id);
 $('dimg').onclick = () => playCry(cur.id);
 $('say').onclick = () => say(cur.n);
+// 색이 다른 모습 그림이 없는 포켓몬(일부 메가진화)은 원래 그림으로 돌아가요
+$('dimg').onerror = () => {
+  if (!shiny) return;
+  shiny = false; $('shiny').classList.remove('on');
+  $('dimg').src = ART + cur.id + '.png';
+};
 $('shiny').onclick = () => {
   shiny = !shiny;
   $('dimg').src = ART + (shiny ? 'shiny/' : '') + cur.id + '.png';
