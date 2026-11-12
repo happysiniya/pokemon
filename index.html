@@ -325,8 +325,8 @@ $('sheet').addEventListener('touchend', e => {
 
 // ---------- 랜덤 ----------
 $('rand').onclick = () => {
-  const pool = list.length ? list : POKEMON;
-  open(pool[Math.floor(Math.random() * pool.length)].id);
+  // 지금 보고 있는 세대와 상관없이 전체 1025마리 중에서 골라요
+  open(POKEMON[Math.floor(Math.random() * POKEMON.length)].id);
 };
 
 // ---------- 말로 찾기 ----------
