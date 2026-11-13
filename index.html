@@ -102,6 +102,70 @@
   .evo .to { font-size: 24px; color: var(--muted); }
   .namu { display: inline-block; margin-top: 14px; font-size: 16px; color: var(--blue); }
 
+  /* 🎮 게임 */
+  #game { position: fixed; inset: 0; z-index: 20; background: var(--bg); overflow-y: auto; display: none; }
+  #game.open { display: block; }
+  .gbar { position: sticky; top: 0; z-index: 2; background: var(--red); box-shadow: 0 3px 0 #b02a0a;
+    display: flex; align-items: center; justify-content: space-between; gap: 10px;
+    padding: calc(10px + env(safe-area-inset-top)) 16px 10px; }
+  .gbar h2 { margin: 0; color: #fff; font-size: 28px; text-shadow: 2px 2px 0 #9c2408; }
+  .gx { font-size: 26px; width: 52px; height: 52px; border-radius: 50%; border: 3px solid #222; background: #fff; flex: none; }
+  .gwrap { max-width: 1000px; margin: 0 auto; padding: 14px 16px calc(40px + env(safe-area-inset-bottom)); }
+  .gsec h3 { font-size: 24px; margin: 18px 0 10px; font-weight: normal; }
+  .chips { display: flex; flex-wrap: wrap; gap: 10px; }
+  .chip { font-size: 22px; border: 3px solid #222; border-radius: 16px; background: #fff; padding: 10px 18px; box-shadow: var(--shadow); }
+  .chip.on { background: var(--yellow); transform: scale(1.05); }
+  .chip:active, .go:active { transform: translateY(3px); box-shadow: none; }
+  .prow { display: flex; gap: 10px; align-items: center; margin: 10px 0; }
+  .ava { font-size: 34px; width: 64px; height: 64px; border-radius: 50%; border: 3px solid #222; background: #fff; flex: none; padding: 0; }
+  .prow input { flex: 1; min-width: 0; font-size: 22px; padding: 12px 14px; border-radius: 14px; border: 3px solid #222;
+    font-family: inherit; outline: none; }
+  .go { display: block; margin: 26px auto 0; font-size: 30px; padding: 14px 44px; border: 3px solid #222;
+    border-radius: 999px; background: var(--yellow); box-shadow: var(--shadow); }
+  .go.alt { background: #fff; font-size: 24px; padding: 10px 30px; margin-top: 14px; }
+  .rule { text-align: center; font-size: 30px; background: #fff; border: 4px solid #222; border-radius: 22px;
+    padding: 12px 14px; margin: 2px 0 10px; box-shadow: var(--shadow); }
+  .rule.small { background: #e8f3ff; }
+  .rule.spin { animation: wob .16s infinite; }
+  .rule.pop { animation: pop .5s; }
+  .crown { animation: crown .5s; }
+  @keyframes crown { 0% { transform: rotate(18deg) scale(0); } 70% { transform: rotate(18deg) scale(1.3); } }
+  @keyframes wob { 50% { transform: rotate(-1.5deg) scale(1.02); } }
+  @keyframes pop { 50% { transform: scale(1.12); } }
+  .gmsg { text-align: center; font-size: 28px; margin: 8px 0 12px; min-height: 36px; }
+  .slots { display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 14px; }
+  .pslot { background: #fff; border: 3px solid #222; border-radius: 20px; padding: 10px 8px 12px; text-align: center;
+    box-shadow: var(--shadow); position: relative; transition: transform .3s, opacity .3s; }
+  .pslot.turn { border-color: var(--red); box-shadow: 0 0 0 6px rgba(227,53,13,.25); }
+  .pslot.win { background: #fff7cc; border-color: #e0a800; transform: scale(1.04); }
+  .pslot.lose, .pslot.out { opacity: .5; }
+  .who { font-size: 22px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .who .sc { color: #c58b00; font-size: 20px; }
+  .stage { position: relative; height: 200px; margin: 6px 0; }
+  .stage .pk { position: absolute; bottom: 0; left: 50%; transform: translateX(-50%); height: 100%; max-width: 100%;
+    object-fit: contain; transition: height 1.3s ease; }
+  .ball2 { position: absolute; left: 50%; top: 50%; width: 96px; height: 96px; margin: -48px 0 0 -48px; border-radius: 50%;
+    background: linear-gradient(#e3350d 0 45%, #222 45% 55%, #fff 55%); border: 4px solid #222; }
+  .ball2.shake { animation: shake .35s infinite; }
+  .riser { position: absolute; bottom: 0; left: 28%; right: 28%; height: 0; transition: height 1.3s ease;
+    background: linear-gradient(#ffd84a, #ff9f1a); border: 3px solid #222; border-bottom: none; border-radius: 12px 12px 0 0; }
+  .riser img { position: absolute; bottom: 100%; left: 50%; transform: translateX(-50%); width: 84px; height: 84px; object-fit: contain; }
+  .crown { position: absolute; top: -30px; right: -10px; font-size: 44px; transform: rotate(18deg); }
+  .pname { font-size: 22px; min-height: 30px; }
+  .pval { font-size: 30px; color: var(--red); min-height: 40px; }
+  .wait { font-size: 18px; color: var(--muted); }
+  .roll { font-size: 24px; border: 3px solid #222; border-radius: 999px; background: var(--yellow); padding: 8px 22px;
+    box-shadow: var(--shadow); animation: pulse 1s infinite; }
+  .gact { text-align: center; }
+  .ranks { max-width: 560px; margin: 10px auto; }
+  .rank { display: flex; align-items: center; gap: 12px; background: #fff; border: 3px solid #222; border-radius: 18px;
+    padding: 10px 16px; margin: 10px 0; font-size: 26px; box-shadow: var(--shadow); }
+  .rank.first { background: #fff7cc; font-size: 32px; }
+  .rank .medal { font-size: 40px; width: 50px; text-align: center; }
+  .rank .nm { flex: 1; }
+  .confetti { position: fixed; top: -50px; z-index: 30; font-size: 32px; pointer-events: none; animation: fall linear forwards; }
+  @keyframes fall { to { transform: translateY(115vh) rotate(600deg); } }
+
   /* 태블릿: 카드와 버튼을 더 크게 */
   @media (min-width: 700px) {
     #grid { grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 18px; padding: 18px 22px 60px; }
@@ -135,6 +199,7 @@
       <input id="q" type="search" enterkeyhint="search" placeholder="이름 찾기 (예: 피카츄, ㅍㅋㅊ)" autocomplete="off">
       <button class="bigbtn" id="mic" title="말로 찾기">🎤</button>
       <button class="bigbtn" id="rand" title="아무 포켓몬이나!">🎲</button>
+      <button class="bigbtn" id="gamebtn" title="포켓몬 대결 게임">🎮</button>
     </div>
   </div>
   <nav id="tabs"></nav>
@@ -170,6 +235,15 @@
   </div>
 </div>
 
+<!-- 🎮 포켓몬 대결 게임 -->
+<div id="game">
+  <div class="gbar">
+    <h2 id="gtitle">🎮 포켓몬 대결</h2>
+    <button class="gx" id="gclose" aria-label="게임 닫기">✕</button>
+  </div>
+  <div class="gwrap" id="gbody"></div>
+</div>
+
 <script src="pokemon-data.js"></script>
 <script>
 const ART = 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/';
@@ -188,7 +262,7 @@ const byId = new Map(POKEMON.map(p => [p.id, p]));
 // 진화 단계에서는 원래 포켓몬 다음 단계로 보여요 (from = 원래 포켓몬).
 const MEGAS = (typeof MEGA === 'undefined' ? [] : MEGA).map(m => {
   const base = byId.get(m.b);
-  return { ...base, id: m.id, n: m.n, t: m.t, b: m.b, from: m.b, mega: true,
+  return { ...base, id: m.id, n: m.n, t: m.t, h: m.h, w: m.w, b: m.b, from: m.b, mega: true,
     d: `${base.n}의 메가진화 모습이에요.` };
 });
 MEGAS.forEach(m => byId.set(m.id, m));
@@ -299,7 +373,10 @@ function closeDetail() {
   if (history.state && history.state.detail) history.back(); // popstate에서 닫혀요
   else hideDetail();
 }
-window.addEventListener('popstate', () => { if ($('detail').classList.contains('open')) hideDetail(); });
+window.addEventListener('popstate', () => {
+  if ($('detail').classList.contains('open')) hideDetail();
+  else if ($('game').classList.contains('open')) onGameBack();
+});
 function step(d) {
   // '좋아요' 탭에서는 좋아요 누른 포켓몬끼리만 넘기고,
   // 그 밖(세대 탭, 검색, 주사위)에서는 도감 번호 순서로 넘겨요 (진화 전/후가 바로 이어져요)
@@ -380,6 +457,265 @@ $('mic').onclick = () => {
   r.onend = () => $('mic').classList.remove('listening');
   r.start();
 };
+
+// ---------- 🎮 포켓몬 대결 게임 ----------
+// 사람마다 🎲로 포켓몬을 뽑고, 판마다 정한 규칙(번호·키·몸무게, 큰 쪽/작은 쪽)으로 이긴 사람을 정해요.
+// 메가진화도 뽑혀요(ALL). 번호는 원래 포켓몬 번호로 비교해요.
+const AVAS = ['🐶', '🐱', '🐰', '🦊', '🐻', '🐼', '🐸', '🐯', '🐵', '🐧'];
+const KINDS = {
+  num: { icon: '🔢', label: '번호', big: '번호가 큰', small: '번호가 작은', val: p => dexNo(p), fmt: v => 'No.' + v, dec: 0 },
+  h:   { icon: '📏', label: '키', big: '키가 큰', small: '키가 작은', val: p => p.h, fmt: v => v / 10 + 'm', dec: 1 },
+  w:   { icon: '⚖️', label: '몸무게', big: '무거운', small: '가벼운', val: p => p.w, fmt: v => v / 10 + 'kg', dec: 1 },
+};
+const ROUNDS = [1, 3, 5, 7, 10];
+const pickOne = a => a[Math.floor(Math.random() * a.length)];
+
+// 지난번 설정(인원, 이름, 판 수, 규칙)을 기억해요 (이 기기에만)
+let G = { n: 2, names: [], avas: ['🐶', '🐱', '🐰', '🦊'], rounds: 3, kind: 'rand', dir: 'big' };
+try { Object.assign(G, JSON.parse(localStorage.getItem('pk-game') || '{}')); } catch (e) {}
+function saveGame() { try { localStorage.setItem('pk-game', JSON.stringify(G)); } catch (e) {} }
+
+let S = null;          // 진행 중인 게임
+let leavingGame = false;
+const later = (ms, fn) => { const s = S; setTimeout(() => { if (S === s) fn(); }, ms); }; // 게임이 바뀌면 무시
+
+function openGame() {
+  if (!$('game').classList.contains('open')) {
+    history.pushState({ game: true }, '');
+    $('game').classList.add('open');
+  }
+  S = null; renderSetup();
+}
+function hideGame() { $('game').classList.remove('open'); S = null; audio.pause(); }
+const playing = () => S && !S.done;
+function closeGame() {
+  if (playing() && !confirm('게임을 그만할까요?')) return;
+  leavingGame = true;
+  if (history.state && history.state.game) history.back(); else { leavingGame = false; hideGame(); }
+}
+function onGameBack() { // 안드로이드 '뒤로'
+  if (!leavingGame && playing() && !confirm('게임을 그만할까요?')) { history.pushState({ game: true }, ''); return; }
+  leavingGame = false; hideGame();
+}
+
+// ----- 설정 화면 -----
+function renderSetup() {
+  $('gtitle').textContent = '🎮 포켓몬 대결';
+  const chips = (act, opts, curV) => `<div class="chips">${opts.map(([v, t]) =>
+    `<button class="chip${String(v) === String(curV) ? ' on' : ''}" data-act="${act}" data-v="${v}">${t}</button>`).join('')}</div>`;
+  let players = '';
+  for (let i = 0; i < G.n; i++) {
+    players += `<div class="prow"><button class="ava" data-act="ava" data-v="${i}">${G.avas[i] || AVAS[i]}</button>
+      <input data-name="${i}" maxlength="8" placeholder="${i + 1}번 이름 (안 써도 돼요)" value="${(G.names[i] || '').replace(/"/g, '&quot;')}"></div>`;
+  }
+  $('gbody').innerHTML = `
+    <div class="gsec"><h3>👥 몇 명이 할까요?</h3>${chips('n', [[2, '2명'], [3, '3명'], [4, '4명']], G.n)}</div>
+    <div class="gsec"><h3>🙋 누가 할까요? <small style="color:var(--muted);font-size:17px">동물을 누르면 바뀌어요</small></h3>${players}</div>
+    <div class="gsec"><h3>🔁 몇 판 할까요?</h3>${chips('rounds', ROUNDS.map(r => [r, r + '판']), G.rounds)}</div>
+    <div class="gsec"><h3>🎯 무엇으로 겨룰까요?</h3>${chips('kind',
+      [['num', '🔢 번호'], ['h', '📏 키'], ['w', '⚖️ 몸무게'], ['rand', '🎰 매 판 랜덤']], G.kind)}</div>
+    <div class="gsec"><h3>🏆 누가 이길까요?</h3>${chips('dir',
+      [['big', '⬆️ 큰 쪽이 이겨요'], ['small', '⬇️ 작은 쪽이 이겨요'], ['rand', '🎰 매 판 랜덤']], G.dir)}</div>
+    <button class="go" data-act="start">시작! ▶</button>`;
+}
+
+// ----- 게임 진행 -----
+function startGame() {
+  saveGame();
+  S = { round: 0, done: false,
+    players: Array.from({ length: G.n }, (_, i) => ({
+      name: (G.names[i] || '').trim() || `${i + 1}번`, ava: G.avas[i] || AVAS[i], score: 0 })) };
+  nextRound();
+}
+function nextRound() {
+  S.round++;
+  const kind = G.kind === 'rand' ? pickOne(Object.keys(KINDS)) : G.kind;
+  const dir = G.dir === 'rand' ? pickOne(['big', 'small']) : G.dir;
+  Object.assign(S, { rule: { kind, dir }, picks: [], contenders: S.players.map((_, i) => i), turn: 0,
+    rolling: null, phase: 'roll', winner: null, tied: null, msg: '', shown: [], anim: null });
+  if (G.kind === 'rand' || G.dir === 'rand') { // 규칙 룰렛
+    S.phase = 'spin'; renderPlay();
+    const el = $('grule'); el.classList.add('spin');
+    const t = setInterval(() => {
+      if (!document.body.contains(el)) return clearInterval(t);
+      el.innerHTML = ruleHTML({ kind: G.kind === 'rand' ? pickOne(Object.keys(KINDS)) : kind,
+        dir: G.dir === 'rand' ? pickOne(['big', 'small']) : dir });
+    }, 110);
+    later(1700, () => { clearInterval(t); S.phase = 'roll'; S.ruleJustSet = true; renderPlay(); });
+  } else renderPlay();
+}
+function ruleHTML(r) {
+  const k = KINDS[r.kind];
+  return `${k.icon} <b>${r.dir === 'big' ? k.big : k.small}</b> 포켓몬이 이겨요!`;
+}
+function stageHTML(i) {
+  const p = S.picks[i];
+  if (!p) return `<div class="ball2${S.rolling === i ? ' shake' : ''}"></div>`;
+  const img = `<img class="pk" crossorigin="anonymous" src="${ART}${p.id}.png" alt="">`;
+  if (!S.shown || !S.shown.includes(i) || S.rule.kind === 'num') return img;
+  // 결과를 보여 줄 때: 키는 그림 크기, 몸무게는 막대 높이로 비교해요.
+  // 지금 애니메이션할 포켓몬(S.anim)은 시작 크기로 그렸다가 reveal()에서 바꿔요.
+  const anim = S.anim && S.anim.includes(i);
+  if (S.rule.kind === 'w') return `<div class="riser" data-i="${i}" style="height:${anim ? '0px' : sizeOf(i)}">` +
+    `<img crossorigin="anonymous" src="${ART}${p.id}.png" alt=""></div>`;
+  return img.replace('class="pk"', `class="pk" data-i="${i}" style="height:${anim ? '100%' : sizeOf(i)}"`);
+}
+function sizeOf(i) { // 결과 화면에서 키(그림 %)·몸무게(막대 px) 크기
+  const k = KINDS[S.rule.kind];
+  const max = Math.max(...S.shown.map(j => k.val(S.picks[j])));
+  const r = k.val(S.picks[i]) / max;
+  return S.rule.kind === 'h' ? Math.max(8, r * 100) + '%' : Math.max(4, r * 100) * 1.1 + 'px';
+}
+function slotHTML(i) {
+  const pl = S.players[i], p = S.picks[i];
+  const isTurn = (S.phase === 'roll') && S.contenders[S.turn] === i;
+  const inGame = S.contenders.includes(i);
+  const cls = ['pslot', isTurn ? 'turn' : '', S.winner === i ? 'win' : '',
+    S.phase === 'won' && S.winner !== i ? 'lose' : '', !inGame ? 'out' : ''].join(' ');
+  let name;
+  if (p) name = p.n;
+  else if (isTurn) name = `<button class="roll" data-act="roll" data-v="${i}">🎲 굴려요!</button>`;
+  else name = `<span class="wait">${S.rolling === i ? '두근두근…' : '기다려요…'}</span>`;
+  const shown = S.shown && S.shown.includes(i);
+  const val = p ? (shown ? `<span data-count="${i}">${KINDS[S.rule.kind].fmt(KINDS[S.rule.kind].val(p))}</span>` : '?') : '';
+  return `<div class="${cls}">
+    ${S.winner === i ? '<div class="crown">👑</div>' : ''}
+    <div class="who">${pl.ava} ${pl.name} <span class="sc">⭐${pl.score}</span></div>
+    <div class="stage">${stageHTML(i)}</div>
+    <div class="pname">${name}</div>
+    <div class="pval">${val}</div>
+  </div>`;
+}
+function renderPlay() {
+  $('gtitle').textContent = `🎮 ${S.round}판 / ${G.rounds}판`;
+  let act = '';
+  if (S.phase === 'ready') act = `<button class="go" data-act="reveal">결과 보기! 👀</button>`;
+  else if (S.phase === 'tie') act = `<button class="go" data-act="tie">다시 굴리기 🎲</button>`;
+  else if (S.phase === 'won') act = S.round < G.rounds
+    ? `<button class="go" data-act="next">다음 판 ▶</button>`
+    : `<button class="go" data-act="final">최종 결과 보기 🏆</button>`;
+  const r = S.rule;
+  $('gbody').innerHTML = `
+    <div class="rule${r.dir === 'small' ? ' small' : ''}${S.ruleJustSet ? ' pop' : ''}" id="grule">${ruleHTML(r)}</div>
+    <div class="gmsg">${S.msg || (S.phase === 'roll' ? `${S.players[S.contenders[S.turn]].ava} ${S.players[S.contenders[S.turn]].name} 차례예요!` : '')}</div>
+    <div class="slots">${S.players.map((_, i) => slotHTML(i)).join('')}</div>
+    <div class="gact">${act}</div>`;
+  S.ruleJustSet = false;
+}
+function roll(i) {
+  if (S.rolling !== null || S.contenders[S.turn] !== i || S.picks[i]) return;
+  S.rolling = i; S.msg = ''; renderPlay();
+  const used = new Set(S.picks.filter(Boolean).map(p => p.id));
+  let p; do { p = pickOne(ALL); } while (used.has(p.id));
+  new Image().src = ART + p.id + '.png'; // 공이 흔들리는 동안 그림을 미리 받아요
+  later(1000, () => {
+    S.picks[i] = p; S.rolling = null; playCry(p.id);
+    S.turn++;
+    if (S.turn >= S.contenders.length) { S.phase = 'ready'; S.msg = '모두 뽑았어요! 누가 이겼을까요?'; }
+    renderPlay();
+  });
+}
+function reveal() {
+  const k = KINDS[S.rule.kind], ids = S.contenders;
+  S.phase = 'reveal'; S.msg = ''; S.shown = [...new Set([...(S.shown || []), ...ids])];
+  S.anim = ids; renderPlay();
+  // 시작 크기에서 진짜 크기로 천천히 바뀌고, 숫자도 0부터 올라가요
+  const s = S;
+  requestAnimationFrame(() => requestAnimationFrame(() => {
+    if (S !== s || S.phase !== 'reveal') return; // 그 사이 화면이 바뀌었으면 그만
+    ids.forEach(i => {
+      const el = document.querySelector(`[data-i="${i}"]`);
+      if (el) el.style.height = sizeOf(i);
+      countUp(document.querySelector(`[data-count="${i}"]`), k.val(S.picks[i]), k);
+    });
+  }));
+  later(1600, () => { S.anim = null; decide(k); });
+}
+function countUp(el, v, k) {
+  if (!el) return;
+  const t0 = performance.now();
+  const tick = now => {
+    if (!document.body.contains(el)) return; // 화면이 다시 그려졌으면 그만
+    const f = Math.max(0, Math.min(1, (now - t0) / 1300));
+    el.textContent = f < 1 ? (k.dec ? (v * f / 10).toFixed(1) + (k === KINDS.h ? 'm' : 'kg') : 'No.' + Math.round(v * f)) : k.fmt(v);
+    if (f < 1) requestAnimationFrame(tick);
+  };
+  requestAnimationFrame(tick);
+}
+function decide(k) {
+  const vals = S.contenders.map(i => k.val(S.picks[i]));
+  const best = S.rule.dir === 'big' ? Math.max(...vals) : Math.min(...vals);
+  const top = S.contenders.filter((i, j) => vals[j] === best);
+  if (top.length > 1) {
+    S.phase = 'tie'; S.tied = top;
+    S.msg = `🤝 비겼어요! ${top.map(i => S.players[i].ava + ' ' + S.players[i].name).join(', ')} 다시 굴려요!`;
+  } else {
+    const w = top[0];
+    S.winner = w; S.players[w].score++; S.phase = 'won';
+    S.msg = `🎉 ${S.players[w].ava} ${S.players[w].name} 이겼어요!`;
+    confetti(); playCry(S.picks[w].id);
+  }
+  renderPlay();
+}
+function tieBreak() {
+  S.contenders = S.tied; S.tied = null;
+  S.contenders.forEach(i => { S.picks[i] = null; });
+  S.shown = S.shown.filter(i => !S.contenders.includes(i));
+  S.turn = 0; S.phase = 'roll'; S.msg = ''; renderPlay();
+}
+function showFinal() {
+  S.done = true;
+  $('gtitle').textContent = '🎮 최종 결과';
+  const sorted = S.players.slice().sort((a, b) => b.score - a.score);
+  let rank = 0, prev = null;
+  const rows = sorted.map((p, j) => {
+    if (p.score !== prev) { rank = j + 1; prev = p.score; }
+    const medal = ['🥇', '🥈', '🥉'][rank - 1] || '🎖️';
+    return `<div class="rank${rank === 1 ? ' first' : ''}"><span class="medal">${medal}</span>
+      <span class="nm">${p.ava} ${p.name}</span><span>⭐ ${p.score}</span></div>`;
+  }).join('');
+  const champs = sorted.filter(p => p.score === sorted[0].score);
+  $('gbody').innerHTML = `
+    <div class="gmsg" style="font-size:32px">🏆 ${champs.map(p => p.ava + ' ' + p.name).join(', ')} ${champs.length > 1 ? '공동 우승!' : '우승!'}</div>
+    <div class="ranks">${rows}</div>
+    <button class="go" data-act="start">한 번 더! 🔁</button>
+    <button class="go alt" data-act="setup">설정 바꾸기</button>`;
+  confetti();
+}
+function confetti() {
+  for (let i = 0; i < 36; i++) {
+    const s = document.createElement('span');
+    s.className = 'confetti';
+    s.textContent = pickOne(['🎉', '⭐', '✨', '🎊', '💛']);
+    s.style.left = Math.random() * 100 + 'vw';
+    s.style.animationDuration = 1.8 + Math.random() * 1.6 + 's';
+    s.style.animationDelay = Math.random() * .5 + 's';
+    document.body.appendChild(s);
+    setTimeout(() => s.remove(), 4200);
+  }
+}
+
+$('gamebtn').onclick = openGame;
+$('gclose').onclick = closeGame;
+$('gbody').addEventListener('input', e => {
+  const i = e.target.dataset.name; if (i !== undefined) G.names[+i] = e.target.value;
+});
+$('gbody').addEventListener('click', e => {
+  const b = e.target.closest('[data-act]'); if (!b) return;
+  const v = b.dataset.v, act = b.dataset.act;
+  if (act === 'n') { G.n = +v; renderSetup(); }
+  else if (act === 'rounds') { G.rounds = +v; renderSetup(); }
+  else if (act === 'kind') { G.kind = v; renderSetup(); }
+  else if (act === 'dir') { G.dir = v; renderSetup(); }
+  else if (act === 'ava') { const i = +v; G.avas[i] = AVAS[(AVAS.indexOf(G.avas[i] || AVAS[i]) + 1) % AVAS.length]; renderSetup(); }
+  else if (act === 'start') startGame();
+  else if (act === 'setup') { S = null; renderSetup(); }
+  else if (act === 'roll') roll(+v);
+  else if (act === 'reveal') reveal();
+  else if (act === 'tie') tieBreak();
+  else if (act === 'next') nextRound();
+  else if (act === 'final') showFinal();
+});
 
 render();
 // 주소 끝에 #25 처럼 번호를 붙이면 그 포켓몬이 바로 열려요

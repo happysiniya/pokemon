@@ -43,6 +43,8 @@ for r in rows('pokemon_species_flavor_text'):
         if s not in desc or v > desc[s][0]:
             desc[s] = (v, ' '.join(r['flavor_text'].split()))
 
+pokemon = {r['id']: r for r in rows('pokemon')}  # 키(height, 0.1m)·몸무게(weight, 0.1kg)
+
 data = []
 for r in species:
     i = r['id']
@@ -57,12 +59,13 @@ for r in species:
         'ch': int(r['evolution_chain_id']),    # 진화 계열 번호
         'leg': 2 if r['is_mythical'] == '1' else (1 if r['is_legendary'] == '1' else 0),  # 1 전설, 2 환상
         'd': desc.get(i, (0, ''))[1],          # 도감 설명
+        'h': int(pokemon[i]['height']),        # 키 (0.1m 단위, 17 = 1.7m)
+        'w': int(pokemon[i]['weight']),        # 몸무게 (0.1kg 단위, 905 = 90.5kg)
     })
 data.sort(key=lambda x: x['id'])
 ko_name = {x['id']: x['n'] for x in data}
 
 # ---------- 메가진화 ----------
-pokemon = {r['id']: r for r in rows('pokemon')}
 form_ko = {r['pokemon_form_id']: r for r in rows('pokemon_form_names') if r['local_language_id'] == KO}
 # 한국어 모습 이름이 없는 메가진화용 (식별자 조각 -> 한국어)
 FORM_WORD = {
@@ -88,6 +91,8 @@ for f in rows('pokemon_forms'):
         'b': int(sp),            # 원래 포켓몬 번호
         'n': name,               # 이름
         't': type_list(pid),     # 메가진화 후 타입
+        'h': int(pokemon[pid]['height']),  # 키 (0.1m)
+        'w': int(pokemon[pid]['weight']),  # 몸무게 (0.1kg)
     })
 megas.sort(key=lambda x: (x['b'], x['id']))
 
