@@ -117,7 +117,30 @@
   .chip.on { background: var(--yellow); transform: scale(1.05); }
   .chip:active, .go:active { transform: translateY(3px); box-shadow: none; }
   .prow { display: flex; gap: 10px; align-items: center; margin: 10px 0; }
-  .ava { font-size: 34px; width: 64px; height: 64px; border-radius: 50%; border: 3px solid #222; background: #fff; flex: none; padding: 0; }
+  .ava { width: 72px; height: 72px; border-radius: 50%; border: 3px solid #222; background: #fff; flex: none; padding: 4px;
+    box-shadow: var(--shadow); }
+  .ava img { width: 100%; height: 100%; object-fit: contain; display: block; }
+  .avrand { font-size: 24px; width: 50px; height: 50px; border-radius: 50%; border: 3px solid #222; background: var(--yellow);
+    flex: none; padding: 0; box-shadow: var(--shadow); }
+  .ava:active, .avrand:active { transform: translateY(3px); box-shadow: none; }
+  .avi { width: 1.5em; height: 1.5em; object-fit: contain; vertical-align: -0.4em; }
+  .who .avi { width: 46px; height: 46px; vertical-align: -14px; }
+  .rank .avi { width: 56px; height: 56px; vertical-align: -18px; }
+  /* 캐릭터 고르기 창 */
+  #picker { position: fixed; inset: 0; z-index: 25; background: rgba(0,0,0,.55); display: none;
+    align-items: center; justify-content: center; padding: 12px; }
+  #picker.open { display: flex; }
+  .pbox { background: #fff; border: 4px solid #222; border-radius: 24px; width: min(860px, 100%); max-height: 100%;
+    display: flex; flex-direction: column; padding: 14px; }
+  .phead { display: flex; gap: 8px; align-items: center; }
+  .phead h3 { margin: 0; font-size: 24px; font-weight: normal; flex: 1; }
+  .psearch { display: flex; gap: 8px; margin-top: 10px; }
+  .psearch input { flex: 1; min-width: 0; font-size: 22px; padding: 10px 14px; border-radius: 999px; border: 3px solid #222;
+    font-family: inherit; outline: none; }
+  .phint { color: var(--muted); font-size: 17px; margin: 8px 2px 0; }
+  .pgrid { overflow-y: auto; display: grid; grid-template-columns: repeat(auto-fill, minmax(120px, 1fr)); gap: 10px;
+    margin-top: 8px; padding: 4px 2px 6px; }
+  .pgrid .card .name { font-size: 18px; }
   .prow input { flex: 1; min-width: 0; font-size: 22px; padding: 12px 14px; border-radius: 14px; border: 3px solid #222;
     font-family: inherit; outline: none; }
   .go { display: block; margin: 26px auto 0; font-size: 30px; padding: 14px 44px; border: 3px solid #222;
@@ -243,6 +266,18 @@
   </div>
   <div class="gwrap" id="gbody"></div>
 </div>
+<!-- 게임 캐릭터 고르기 -->
+<div id="picker">
+  <div class="pbox">
+    <div class="phead"><h3 id="ptitle">캐릭터 고르기</h3><button class="gx" id="pclose" aria-label="닫기">✕</button></div>
+    <div class="psearch">
+      <input id="pq" type="search" enterkeyhint="search" placeholder="이름 찾기 (예: 피카츄, ㅍㅋㅊ)" autocomplete="off">
+      <button class="bigbtn" id="prand" title="아무거나">🎲</button>
+    </div>
+    <div class="phint" id="phint"></div>
+    <div class="pgrid" id="pgrid"></div>
+  </div>
+</div>
 
 <script src="pokemon-data.js"></script>
 <script>
@@ -286,14 +321,19 @@ function chosung(s) {
 }
 ALL.forEach(p => { p.cho = chosung(p.n); });
 
+// 이름 일부·초성·번호·타입으로 찾기 (도감 검색창과 게임 캐릭터 고르기에서 같이 써요)
+function searchAll(q) {
+  const isCho = /^[ㄱ-ㅎ]+$/.test(q);
+  return ALL.filter(p =>
+    String(p.id) === q || p.n.replace(/\s/g, '').includes(q) || (isCho && p.cho.includes(q)) || p.t.includes(q));
+}
+
 // ---------- 목록 ----------
 let gen = 1, list = [];
 function render() {
   const q = $('q').value.replace(/\s/g, '');
   if (q) {
-    const isCho = /^[ㄱ-ㅎ]+$/.test(q);
-    list = ALL.filter(p =>
-      String(p.id) === q || p.n.replace(/\s/g, '').includes(q) || (isCho && p.cho.includes(q)) || p.t.includes(q));
+    list = searchAll(q);
     $('status').textContent = list.length ? `"${q}" 찾았어요! ${list.length}마리` : `"${q}" 포켓몬이 없어요 😢`;
   } else if (gen === 0) {
     list = ALL.filter(p => favs.has(p.id)).sort((a, b) => dexNo(a) - dexNo(b) || a.id - b.id);
@@ -374,7 +414,8 @@ function closeDetail() {
   else hideDetail();
 }
 window.addEventListener('popstate', () => {
-  if ($('detail').classList.contains('open')) hideDetail();
+  if ($('picker').classList.contains('open')) hidePicker();
+  else if ($('detail').classList.contains('open')) hideDetail();
   else if ($('game').classList.contains('open')) onGameBack();
 });
 function step(d) {
@@ -461,7 +502,6 @@ $('mic').onclick = () => {
 // ---------- 🎮 포켓몬 대결 게임 ----------
 // 사람마다 🎲로 포켓몬을 뽑고, 판마다 정한 규칙(번호·키·몸무게, 큰 쪽/작은 쪽)으로 이긴 사람을 정해요.
 // 메가진화도 뽑혀요(ALL). 번호는 원래 포켓몬 번호로 비교해요.
-const AVAS = ['🐶', '🐱', '🐰', '🦊', '🐻', '🐼', '🐸', '🐯', '🐵', '🐧'];
 const KINDS = {
   num: { icon: '🔢', label: '번호', big: '번호가 큰', small: '번호가 작은', val: p => dexNo(p), fmt: v => 'No.' + v, dec: 0 },
   h:   { icon: '📏', label: '키', big: '키가 큰', small: '키가 작은', val: p => p.h, fmt: v => v / 10 + 'm', dec: 1 },
@@ -471,9 +511,20 @@ const ROUNDS = [1, 3, 5, 7, 10];
 const pickOne = a => a[Math.floor(Math.random() * a.length)];
 
 // 지난번 설정(인원, 이름, 판 수, 규칙)을 기억해요 (이 기기에만)
-let G = { n: 2, names: [], avas: ['🐶', '🐱', '🐰', '🦊'], rounds: 3, kind: 'rand', dir: 'big' };
+let G = { n: 2, names: [], avas: [], rounds: 3, kind: 'rand', dir: 'big' };
 try { Object.assign(G, JSON.parse(localStorage.getItem('pk-game') || '{}')); } catch (e) {}
 function saveGame() { try { localStorage.setItem('pk-game', JSON.stringify(G)); } catch (e) {} }
+
+// 캐릭터 = 포켓몬 번호 (G.avas[i]). 예전에 저장된 동물 이모지는 랜덤 포켓몬으로 바꿔요.
+if (!Array.isArray(G.avas)) G.avas = [];
+G.avas = G.avas.map(a => (typeof a === 'number' && byId.has(a) ? a : null));
+function randomAva(i) { // 다른 사람과 겹치지 않는 랜덤 포켓몬
+  const taken = new Set(G.avas.filter((a, j) => a && j !== i));
+  let p; do { p = pickOne(ALL); } while (taken.has(p.id));
+  return p.id;
+}
+function avaOf(i) { if (!G.avas[i]) G.avas[i] = randomAva(i); return G.avas[i]; }
+const face = id => `<img class="avi" crossorigin="anonymous" src="${ART}${id}.png" alt="">`; // 글자 사이에 넣는 작은 캐릭터 그림
 
 let S = null;          // 진행 중인 게임
 let leavingGame = false;
@@ -505,12 +556,15 @@ function renderSetup() {
     `<button class="chip${String(v) === String(curV) ? ' on' : ''}" data-act="${act}" data-v="${v}">${t}</button>`).join('')}</div>`;
   let players = '';
   for (let i = 0; i < G.n; i++) {
-    players += `<div class="prow"><button class="ava" data-act="ava" data-v="${i}">${G.avas[i] || AVAS[i]}</button>
-      <input data-name="${i}" maxlength="8" placeholder="${i + 1}번 이름 (안 써도 돼요)" value="${(G.names[i] || '').replace(/"/g, '&quot;')}"></div>`;
+    const a = avaOf(i);
+    players += `<div class="prow"><button class="ava" data-act="ava" data-v="${i}" title="캐릭터 고르기">
+        <img crossorigin="anonymous" src="${ART}${a}.png" alt=""></button>
+      <button class="avrand" data-act="avrand" data-v="${i}" title="랜덤 캐릭터">🎲</button>
+      <input data-name="${i}" maxlength="8" placeholder="이름 (안 쓰면 ${byId.get(a).n})" value="${(G.names[i] || '').replace(/"/g, '&quot;')}"></div>`;
   }
   $('gbody').innerHTML = `
     <div class="gsec"><h3>👥 몇 명이 할까요?</h3>${chips('n', [[2, '2명'], [3, '3명'], [4, '4명']], G.n)}</div>
-    <div class="gsec"><h3>🙋 누가 할까요? <small style="color:var(--muted);font-size:17px">동물을 누르면 바뀌어요</small></h3>${players}</div>
+    <div class="gsec"><h3>🙋 누가 할까요? <small style="color:var(--muted);font-size:17px">포켓몬을 누르면 고를 수 있어요</small></h3>${players}</div>
     <div class="gsec"><h3>🔁 몇 판 할까요?</h3>${chips('rounds', ROUNDS.map(r => [r, r + '판']), G.rounds)}</div>
     <div class="gsec"><h3>🎯 무엇으로 겨룰까요?</h3>${chips('kind',
       [['num', '🔢 번호'], ['h', '📏 키'], ['w', '⚖️ 몸무게'], ['rand', '🎰 매 판 랜덤']], G.kind)}</div>
@@ -524,7 +578,7 @@ function startGame() {
   saveGame();
   S = { round: 0, done: false,
     players: Array.from({ length: G.n }, (_, i) => ({
-      name: (G.names[i] || '').trim() || `${i + 1}번`, ava: G.avas[i] || AVAS[i], score: 0 })) };
+      name: (G.names[i] || '').trim() || byId.get(avaOf(i)).n, ava: face(avaOf(i)), score: 0 })) };
   nextRound();
 }
 function nextRound() {
@@ -695,6 +749,49 @@ function confetti() {
   }
 }
 
+// ----- 캐릭터 고르기 창 -----
+let pickFor = null; // 몇 번째 사람의 캐릭터를 고르는지
+function openPicker(i) {
+  pickFor = i;
+  $('ptitle').innerHTML = `${face(avaOf(i))} ${(G.names[i] || '').trim() || (i + 1) + '번'} 캐릭터 고르기`;
+  $('pq').value = '';
+  renderPicker();
+  history.pushState({ picker: true }, ''); // '뒤로'를 누르면 이 창만 닫혀요
+  $('picker').classList.add('open');
+}
+function hidePicker() { $('picker').classList.remove('open'); pickFor = null; }
+function closePicker() { if (history.state && history.state.picker) history.back(); else hidePicker(); }
+function renderPicker() {
+  const q = $('pq').value.replace(/\s/g, '');
+  let items, hint;
+  if (q) {
+    items = searchAll(q);
+    hint = items.length ? `"${q}" ${items.length}마리` : `"${q}" 포켓몬이 없어요 😢`;
+  } else {
+    const fav = ALL.filter(p => favs.has(p.id));
+    items = fav.length ? fav : POKEMON.filter(p => p.gen === 1);
+    hint = fav.length ? '⭐ 좋아하는 포켓몬이에요. 이름으로 다른 포켓몬도 찾을 수 있어요!' : '1세대 포켓몬이에요. 이름으로 다른 포켓몬도 찾을 수 있어요!';
+  }
+  $('phint').textContent = hint;
+  $('pgrid').innerHTML = items.slice(0, 300).map(p => `
+    <button class="card" data-id="${p.id}">
+      <img loading="lazy" crossorigin="anonymous" src="${ART}${p.id}.png" alt="">
+      <div class="name">${p.n}</div>
+    </button>`).join('');
+  $('pgrid').scrollTop = 0;
+}
+function choose(id) {
+  if (pickFor === null) return;
+  G.avas[pickFor] = id; saveGame(); playCry(id);
+  closePicker(); renderSetup();
+}
+$('pq').oninput = renderPicker;
+$('pq').addEventListener('keydown', e => { if (e.key === 'Enter') $('pq').blur(); });
+$('pgrid').onclick = e => { const c = e.target.closest('.card'); if (c) choose(+c.dataset.id); };
+$('prand').onclick = () => choose(randomAva(pickFor));
+$('pclose').onclick = closePicker;
+$('picker').onclick = e => { if (e.target.id === 'picker') closePicker(); };
+
 $('gamebtn').onclick = openGame;
 $('gclose').onclick = closeGame;
 $('gbody').addEventListener('input', e => {
@@ -707,7 +804,8 @@ $('gbody').addEventListener('click', e => {
   else if (act === 'rounds') { G.rounds = +v; renderSetup(); }
   else if (act === 'kind') { G.kind = v; renderSetup(); }
   else if (act === 'dir') { G.dir = v; renderSetup(); }
-  else if (act === 'ava') { const i = +v; G.avas[i] = AVAS[(AVAS.indexOf(G.avas[i] || AVAS[i]) + 1) % AVAS.length]; renderSetup(); }
+  else if (act === 'ava') openPicker(+v);
+  else if (act === 'avrand') { const i = +v; G.avas[i] = randomAva(i); saveGame(); playCry(G.avas[i]); renderSetup(); }
   else if (act === 'start') startGame();
   else if (act === 'setup') { S = null; renderSetup(); }
   else if (act === 'roll') roll(+v);
