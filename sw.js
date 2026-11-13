@@ -1,6 +1,6 @@
 // 한 번 본 화면과 포켓몬 그림을 태블릿에 저장해 두어서 다음부터 빨리 열려요.
 // 파일을 고쳐서 다시 올릴 때는 아래 버전 숫자를 하나 올려 주세요.
-const VERSION = 'v4';
+const VERSION = 'v5';
 const SHELL = 'shell-' + VERSION;
 const IMAGES = 'images-v1';
 const SHELL_FILES = ['./', 'index.html', 'pokemon-data.js', 'manifest.json', 'icon-192.png', 'icon-512.png'];
